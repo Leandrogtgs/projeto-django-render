@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-chave-de-exemplo'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['projeto-django-render-1.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
