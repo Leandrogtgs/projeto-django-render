@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Contatos</title>
+  <link rel="stylesheet" href="{% static 'minha_pagina/style.css' %}">
+  <style>
+    body {
+      background-color: #111b21;
+      color: #e9edef;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .top-right-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1100;
+    }
+
+    .top-right-buttons button {
+      padding: 8px 15px;
+      background-color: #00a884;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .top-right-buttons button:hover {
+      background-color: #03b197;
+    }
+
+    .container {
+      background-color: #202c33;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+      margin-top: 60px;
+      z-index: 1;
+      position: relative;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 30px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      text-align: left;
+      color: #e9edef;
+    }
+
+    ul li {
+      background-color: #2a3942;
+      margin-bottom: 10px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      word-wrap: break-word;
+    }
+
+    a {
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button {
+      padding: 12px 25px;
+      background-color: #00a884;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-family: inherit;
+    }
+
+    button:hover {
+      background-color: #03b197;
+    }
+
+    /* MENU LATERAL */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 250px;
+      height: 100%;
+      background-color: #202c33;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      box-sizing: border-box;
+      transition: right 0.3s ease;
+      z-index: 2000;
+    }
+
+    .side-menu.open {
+      right: 0;
+    }
+
+    .side-menu h3 {
+      margin-top: 0;
+      text-align: center;
+      color: #e9edef;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .side-menu a {
+      display: block;
+      margin: 15px 0;
+      color: white;
+      text-decoration: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .side-menu button {
+      width: 100%;
+      background-color: #00a884;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background-color 0.3s ease;
+    }
+
+    .side-menu button:hover {
+      background-color: #03b197;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-right-buttons">
+    <button onclick="abrirMenu()">Ver opções</button>
+  </div>
+
+  <!-- Menu lateral oculto -->
+  <div class="side-menu" id="sideMenu">
+    <button onclick="fecharMenu()">Fechar</button>
+    <h3>Menu</h3>
+    <a href="{% url 'pagina_inicial' %}">
+      <button type="button">Página Inicial</button>
+    </a>
+    <a href="{% url 'chatbot' %}">
+      <button type="button">Chatbot</button>
+    </a>
+    <a href="{% url 'adicionar_contatos' %}">
+      <button type="button">Adicionar Contatos</button>
+    </a>
+    <a href="{% url 'lista_contatos' %}">
+      <button type="button">Lista de Contatos</button>
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>Lista de Contatos</h1>
+
+    <ul>
+      {% for contato in contatos %}
+        <li>{{ contato.nome }} - {{ contato.telefone }}</li>
+      {% empty %}
+        <li>Nenhum contato cadastrado.</li>
+      {% endfor %}
+    </ul>
+
+    <a href="{% url 'adicionar_contatos' %}">
+      <button type="button">Adicionar Novo Contato</button>
+    </a>
+  </div>
+
+  <script>
+    function abrirMenu() {
+      document.getElementById("sideMenu").classList.add("open");
+    }
+
+    function fecharMenu() {
+      document.getElementById("sideMenu").classList.remove("open");
+    }
+  </script>
+  
+</body>
+</html>

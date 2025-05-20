@@ -1,0 +1,520 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Corporativo com WhatsApp</title>
+  <link rel="stylesheet" href="{% static 'minha_pagina/style.css' %}">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #111b21;
+      color: #e9edef;
+    }
+
+    .sidebar, .main-panel {
+      display: inline-block;
+      vertical-align: top;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 25%;
+      background-color: #202c33;
+      padding: 10px;
+      border-right: 1px solid #2a3942;
+    }
+
+    .main-panel {
+      width: 75%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: #2a3942;
+      color: #e9edef;
+    }
+
+    .conversation {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      background-color: #2a3942;
+      cursor: pointer;
+    }
+
+    .conversation:hover {
+      background-color: #344955;
+    }
+
+    .conversation-title {
+      font-weight: bold;
+    }
+
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .chat-header {
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #2a3942;
+      padding-bottom: 8px;
+      width: 100%;
+      color: #e9edef;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .fechar-x {
+      font-size: 22px;
+      font-weight: bold;
+      color: #e9edef;
+      cursor: pointer;
+      margin-left: 10px;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+
+    .fechar-x:hover {
+      color: #ff5f5f;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      border: 1px solid #2a3942;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #202c33;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-input {
+      display: flex;
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+      gap: 10px;
+      padding-top: 10px;
+      background-color: #111b21;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: #2a3942;
+      color: #e9edef;
+    }
+
+    .chat-input input::placeholder {
+      color: #b0b3b5;
+    }
+
+    .chat-input button {
+      padding: 10px 20px;
+      background-color: #00a884;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: auto;
+      transition: background-color 0.3s ease;
+    }
+
+    .chat-input button:hover {
+      background-color: #03b197;
+    }
+
+    .top-right-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .top-right-buttons button {
+      padding: 10px 20px;
+      background-color: #00a884;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .top-right-buttons button:hover {
+      background-color: #03b197;
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 250px;
+      height: 100%;
+      background-color: #202c33;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      box-sizing: border-box;
+      transition: right 0.3s ease;
+      z-index: 2000;
+    }
+
+    .side-menu.open {
+      right: 0;
+    }
+
+    .side-menu h3 {
+      margin-top: 0;
+      text-align: center;
+      color: #e9edef;
+    }
+
+    .side-menu a {
+      display: block;
+      margin: 15px 0;
+      color: white;
+      text-decoration: none;
+    }
+
+    .side-menu button {
+      width: 100%;
+      background-color: #00a884;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .side-menu button:hover {
+      background-color: #03b197;
+    }
+
+    .message-bubble {
+      max-width: 60%;
+      padding: 10px;
+      margin: 4px 0;
+      border-radius: 8px;
+      position: relative;
+      display: inline-block;
+      clear: both;
+      word-wrap: break-word;
+    }
+
+    .message-bubble.sent {
+      background-color: #005c4b;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+      border-top-right-radius: 0;
+    }
+
+    .message-bubble.received {
+      background-color: #2a3942;
+      color: #e9edef;
+      align-self: flex-start;
+      margin-right: auto;
+      border-top-left-radius: 0;
+    }
+
+    .message-bubble .timestamp {
+      font-size: 0.75em;
+      color: #b0b3b5;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    /* Centralizar texto de boas-vindas */
+    .welcome {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+
+    /* Estilo das opções para interação - não clicáveis */
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 60%;
+    }
+    .option-item {
+      background-color: #2a3942;
+      color: #e9edef;
+      padding: 10px 15px;
+      border-radius: 6px;
+      user-select: none;
+      border: 1.5px solid transparent;
+      transition: background-color 0.2s, border-color 0.2s;
+      align-self: flex-start;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-right-buttons">
+    <button onclick="abrirMenu()">Ver opções</button>
+  </div>
+
+  <div class="side-menu" id="sideMenu">
+    <button onclick="fecharMenu()">Fechar</button>
+    <h3>Menu</h3>
+    <a href="{% url 'pagina_inicial' %}"><button>Página Inicial</button></a>
+    <a href="{% url 'chatbot' %}"><button>Chatbot</button></a>
+    <a href="{% url 'adicionar_contatos' %}"><button>Adicionar Contatos</button></a>
+    <a href="{% url 'lista_contatos' %}"><button>Lista de Contatos</button></a>
+  </div>
+
+  <div class="sidebar">
+    <div class="search-bar">
+      <input type="text" placeholder="Pesquisar ou começar nova conversa" id="searchInput" oninput="filtrarConversas()" />
+    </div>
+    <div class="conversation-list" id="conversationList"></div>
+  </div>
+
+  <div class="main-panel">
+    <div class="welcome" id="welcome">
+      <h2>Bem-vindo ao Chat RVN CRB</h2>
+      <p>Selecione uma conversa ao lado para começar.</p>
+    </div>
+
+    <div class="chat-panel" id="chat-panel" style="display:none;">
+      <div class="chat-header" id="chat-header">
+        <span id="nome-contato">Contato</span>
+        <span class="fechar-x" onclick="fecharConversa()">×</span>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" id="msgInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter'){enviarMensagem();}" />
+        <button onclick="enviarMensagem()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Contatos e mensagens padrão
+    const contatos = [
+      {
+        nome: "Ana Silva UH314",
+        opcoes: [
+          "1. Qual é a localização do hotel?",
+          "2. Quais são os horários de check-in e check-out?",
+          "3. O hotel oferece café da manhã?",
+          "4. Tem piscina e academia no hotel?",
+          "5. Quais são as políticas de cancelamento?",
+          "6. Como faço para reservar um quarto?",
+          "7. Qual o telefone para contato?"
+        ],
+        respostas: {
+          "1": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
+          "qual é a localização do hotel?": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
+          "2": "O check-in é a partir das 14h e o check-out até as 12h.",
+          "quais são os horários de check-in e check-out?": "O check-in é a partir das 14h e o check-out até as 12h.",
+          "3": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
+          "o hotel oferece café da manhã?": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
+          "4": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
+          "tem piscina e academia no hotel?": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
+          "5": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
+          "quais são as políticas de cancelamento?": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
+          "6": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
+          "como faço para reservar um quarto?": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
+          "7": "Nosso telefone para contato é (11) 1234-5678.",
+          "qual o telefone para contato?": "Nosso telefone para contato é (11) 1234-5678."
+        },
+        mensagensIniciais: [
+          "Olá! Sou a Ana Silva, recepcionista do hotel UH314. Em que posso ajudar?",
+          "Escolha uma das opções abaixo digitando o número ou o texto completo da opção:"
+        ]
+      }
+    ];
+
+    let conversaAberta = null; // contato aberto
+
+    // Preenche a lista de conversas (sidebar)
+    function carregarConversas() {
+      const lista = document.getElementById("conversationList");
+      lista.innerHTML = "";
+      contatos.forEach((contato, i) => {
+        const div = document.createElement("div");
+        div.classList.add("conversation");
+        div.dataset.index = i;
+        div.onclick = () => abrirConversa(i);
+
+        const titulo = document.createElement("div");
+        titulo.classList.add("conversation-title");
+        titulo.textContent = contato.nome;
+        div.appendChild(titulo);
+
+        lista.appendChild(div);
+      });
+    }
+
+    function filtrarConversas() {
+      const filtro = document.getElementById("searchInput").value.toLowerCase();
+      const lista = document.getElementById("conversationList");
+      Array.from(lista.children).forEach(div => {
+        const nome = div.textContent.toLowerCase();
+        div.style.display = nome.includes(filtro) ? "flex" : "none";
+      });
+    }
+
+    // Abre conversa
+    function abrirConversa(index) {
+      conversaAberta = contatos[index];
+      document.getElementById("welcome").style.display = "none";
+      document.getElementById("chat-panel").style.display = "flex";
+      document.getElementById("nome-contato").textContent = conversaAberta.nome;
+      const chatMessages = document.getElementById("chat-messages");
+      chatMessages.innerHTML = "";
+
+      // Mensagens iniciais do contato
+      conversaAberta.mensagensIniciais.forEach(texto => {
+        adicionarMensagem(texto, "received");
+      });
+
+      // Exibir opções em texto (não clicáveis)
+      exibirOpcoes();
+
+      scrollToBottom();
+      document.getElementById("msgInput").focus();
+    }
+
+    // Fecha conversa
+    function fecharConversa() {
+      conversaAberta = null;
+      document.getElementById("chat-panel").style.display = "none";
+      document.getElementById("welcome").style.display = "flex";
+      document.getElementById("chat-messages").innerHTML = "";
+    }
+
+    // Adiciona mensagem na área do chat
+    function adicionarMensagem(texto, tipo) {
+      const chatMessages = document.getElementById("chat-messages");
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message-bubble", tipo);
+
+      if (tipo === "received" && texto.startsWith("1.")) {
+        // Opções exibidas como lista formatada no chat para o usuário ler
+        const optionList = document.createElement("div");
+        optionList.classList.add("option-list");
+        conversaAberta.opcoes.forEach(op => {
+          const opDiv = document.createElement("div");
+          opDiv.textContent = op;
+          opDiv.classList.add("option-item");
+          optionList.appendChild(opDiv);
+        });
+        msgDiv.appendChild(optionList);
+      } else {
+        msgDiv.textContent = texto;
+      }
+
+      chatMessages.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    // Mostra as opções no chat para o usuário
+    function exibirOpcoes() {
+      // Limpar últimas opções antes de exibir para evitar duplicação
+      // Mas aqui não será removida, pois só mostra no início
+      adicionarMensagem(conversaAberta.opcoes[0], "received");
+    }
+
+    // Envia a mensagem do usuário
+    function enviarMensagem() {
+      if (!conversaAberta) return;
+
+      const input = document.getElementById("msgInput");
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      // Adiciona mensagem do usuário
+      adicionarMensagem(texto, "sent");
+      input.value = "";
+
+      // Responder conforme texto digitado (número ou texto exato)
+      let resposta = null;
+      const ch = texto.toLowerCase();
+
+      // Verificar se corresponde a número (1-7)
+      if (conversaAberta.respostas[ch]) {
+        resposta = conversaAberta.respostas[ch];
+      } else {
+        // Tentar achar resposta para texto completo
+        Object.entries(conversaAberta.respostas).forEach(([key, val]) => {
+          if (key === ch) resposta = val;
+        });
+      }
+
+      // Se não achou, mensagem default
+      if (!resposta) {
+        resposta = "Desculpe, não entendi. Por favor, digite o número ou texto completo da opção desejada.";
+      }
+
+      // Envia resposta após pequena demora para simular conversa
+      setTimeout(() => {
+        adicionarMensagem(resposta, "received");
+        // Após resposta, reapresentar opções para o usuário escolher novamente
+        if (resposta !== "Desculpe, não entendi. Por favor, digite o número ou texto completo da opção desejada.") {
+          setTimeout(() => {
+            exibirOpcoes();
+          }, 300);
+        }
+      }, 500);
+    }
+
+    // Scroll para o final do chat
+    function scrollToBottom() {
+      const chatMessages = document.getElementById("chat-messages");
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Menu lateral superior direito
+    function abrirMenu() {
+      document.getElementById("sideMenu").classList.add("open");
+    }
+
+    function fecharMenu() {
+      document.getElementById("sideMenu").classList.remove("open");
+    }
+
+    // Inicializa lista de conversas
+    carregarConversas();
+  </script>
+</body>
+</html>

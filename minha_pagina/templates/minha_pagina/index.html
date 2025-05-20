@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="{% static 'minha_pagina/style.css' %}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #111b21;
+            margin: 0;
+            padding: 0;
+            color: #e9edef;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background-color: #202c33;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid #2a3942;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #e9edef;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #8696a0;
+            margin-bottom: 30px;
+        }
+
+        a button {
+            padding: 12px 24px;
+            background-color: #00a884;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        a button:hover {
+            background-color: #03b197;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 40px 20px;
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+        /* Botão fixo topo direito */
+        .top-right-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .top-right-buttons button {
+            padding: 8px 15px;
+            background-color: #00a884;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .top-right-buttons button:hover {
+            background-color: #03b197;
+        }
+
+        /* Menu lateral */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -260px;
+            width: 250px;
+            height: 100%;
+            background-color: #202c33;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            box-sizing: border-box;
+            transition: right 0.3s ease;
+            z-index: 2000;
+        }
+
+        .side-menu.open {
+            right: 0;
+        }
+
+        .side-menu h3 {
+            margin-top: 0;
+            text-align: center;
+            color: #e9edef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .side-menu a {
+            display: block;
+            margin: 15px 0;
+            color: white;
+            text-decoration: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .side-menu button {
+            width: 100%;
+            background-color: #00a884;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        .side-menu button:hover {
+            background-color: #03b197;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-right-buttons">
+        <button onclick="abrirMenu()">Ver opções</button>
+    </div>
+
+    <!-- Menu lateral oculto -->
+  <div class="side-menu" id="sideMenu">
+    <button onclick="fecharMenu()">Fechar</button>
+    <h3>Menu</h3>
+    <a href="{% url 'pagina_inicial' %}"><button>Página Inicial</button></a>
+    <a href="{% url 'chatbot' %}"><button>Chatbot</button></a>
+    <a href="{% url 'adicionar_contatos' %}"><button>Adicionar Contatos</button></a>
+    <a href="{% url 'lista_contatos' %}"><button>Lista de Contatos</button></a>
+  </div>
+
+
+    <div class="container">
+        <h1>Bem-vindo ao CHAT RVN CRB</h1>
+        <p>Essa página foi criada com Django no VS Code.</p>
+        <a href="{% url 'chatbot' %}">
+            <button>Ir para o Chatbot</button>
+        </a>
+    </div>
+
+    <script>
+        function abrirMenu() {
+            document.getElementById("sideMenu").classList.add("open");
+        }
+
+        function fecharMenu() {
+            document.getElementById("sideMenu").classList.remove("open");
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: projeto-django-render
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn meu_projeto.wsgi
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: projeto-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+
+databases:
+  - name: projeto-db
