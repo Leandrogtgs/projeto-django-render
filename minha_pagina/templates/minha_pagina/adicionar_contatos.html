@@ -297,7 +297,6 @@
     <h3>Menu</h3>
     <a href="{% url 'pagina_inicial' %}"><button>Página Inicial</button></a>
     <a href="{% url 'adicionar_contatos' %}"><button>Resgistro de consumos</button></a>
-    <a href="{% url 'adicionar_contatos' %}"><button>Ordens de serviço</button></a>
   </div>
 
   <div class="container">
@@ -429,11 +428,10 @@
     const registros = carregarDoLocalStorage().filter(r => r.tipo === tipoConsumoAtual);
     renderizarTabela(registros);
   }
-
-    document.getElementById('consumoForm').addEventListener('submit', function(event) {
+  document.getElementById('consumoForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const novoVolumeAtual = parseFloat(document.getElementById('consumo_diario').value); // aqui o usuário insere o novo volume atual
+    const novoVolumeAtual = parseFloat(document.getElementById('consumo_diario').value);
     const apartamentos = parseInt(document.getElementById('apartamentos_ocupados').value);
 
     if (apartamentos <= 0) {
@@ -446,25 +444,35 @@
       return;
     }
 
-    // Pega o volume atual mais recente salvo (último volume atual registrado)
-    const volumeAtualAnterior = obterVolumeAtualMaisRecente(tipoConsumoAtual);
+    let consumo, volumeInicial, volumeAnterior;
 
-    if (volumeAtualAnterior === null) {
-      alert(`Não há volume inicial registrado para ${tipoConsumoAtual}. Registre-o antes.`);
-      return;
+    if (tipoConsumoAtual === 'Eletricidade') {
+      // Para eletricidade, o usuário já fornece diretamente o consumo, não é necessário volume inicial
+      consumo = novoVolumeAtual;
+      volumeInicial = '-';
+      volumeAnterior = '-';
+    } else {
+      volumeAnterior = obterVolumeAtualMaisRecente(tipoConsumoAtual);
+
+      if (volumeAnterior === null) {
+        alert(`Não há volume inicial registrado para ${tipoConsumoAtual}. Registre-o antes.`);
+        return;
+      }
+
+      if (novoVolumeAtual > volumeAnterior) {
+        alert("O novo volume atual não pode ser maior que o volume anterior.");
+        return;
+      }
+
+      consumo = volumeAnterior - novoVolumeAtual;
+      volumeInicial = localStorage.getItem(`volumeInicial_${tipoConsumoAtual}`) || '-';
     }
 
-    if (novoVolumeAtual > volumeAtualAnterior) {
-      alert("O novo volume atual não pode ser maior que o volume atual anterior.");
-      return;
-    }
-
-    // Consumo diário é a diferença entre volume atual anterior e novo volume atual
-    const consumo = volumeAtualAnterior - novoVolumeAtual;
     const consumoPorApartamento = consumo / apartamentos;
 
-    document.getElementById('resultado').textContent = 
-      `Consumo médio de ${tipoConsumoAtual.toLowerCase()} por apartamento: ${consumoPorApartamento.toFixed(2)} ${tipoConsumoAtual === 'Água' ? 'litros' : (tipoConsumoAtual === 'Gás' ? 'm³' : 'kWh')}`;
+    document.getElementById('resultado').textContent =
+      `Consumo médio de ${tipoConsumoAtual.toLowerCase()} por apartamento: ${consumoPorApartamento.toFixed(2)} ` +
+      (tipoConsumoAtual === 'Água' ? 'litros' : tipoConsumoAtual === 'Gás' ? 'm³' : 'kWh');
 
     const novoRegistro = {
       tipo: tipoConsumoAtual,
@@ -472,8 +480,8 @@
       apartamentos: apartamentos,
       consumoPorApartamento: consumoPorApartamento.toFixed(2),
       data: new Date().toLocaleDateString('pt-BR'),
-      volumeInicial: localStorage.getItem(`volumeInicial_${tipoConsumoAtual}`) || '-',
-      volumeAtual: novoVolumeAtual.toFixed(2)
+      volumeInicial: volumeInicial,
+      volumeAtual: tipoConsumoAtual === 'Eletricidade' ? '-' : novoVolumeAtual.toFixed(2)
     };
 
     const registros = carregarDoLocalStorage();
@@ -484,6 +492,7 @@
 
     this.reset();
   });
+
 
 
   // Inicializa tipo padrão e carrega dados do localStorage
