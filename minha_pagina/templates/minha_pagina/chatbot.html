@@ -1,514 +1,271 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Chat Corporativo com WhatsApp</title>
-  <link rel="stylesheet" href="{% static 'minha_pagina/style.css' %}">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #111b21;
-      color: #e9edef;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ordens de Serviço RVN CRB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            color: #111b21;
+        }
 
-    .sidebar, .main-panel {
-      display: inline-block;
-      vertical-align: top;
-      height: 100vh;
-    }
+        h1 {
+            font-weight: 600;
+        }
 
-    .sidebar {
-      width: 25%;
-      background-color: #202c33;
-      padding: 10px;
-      border-right: 1px solid #2a3942;
-    }
+        .container {
+            background-color: #f2f2f2;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
 
-    .main-panel {
-      width: 75%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      position: relative;
-    }
+        .btn-success {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+        }
 
-    .search-bar input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      background-color: #2a3942;
-      color: #e9edef;
-    }
+        .btn-success:hover {
+            background-color: #e67e00;
+            border-color: #e67e00;
+        }
 
-    .conversation {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      background-color: #2a3942;
-      cursor: pointer;
-    }
+        .btn-primary {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+        }
 
-    .conversation:hover {
-      background-color: #344955;
-    }
+        .btn-primary:hover {
+            background-color: #e67e00;
+            border-color: #e67e00;
+        }
 
-    .conversation-title {
-      font-weight: bold;
-    }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+        }
 
-.chat-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* centraliza vertical e horizontalmente */
-  width: 1600px; /* aumente conforme necessário */
-  height: 80vh; /* ajuste a altura se quiser menos que a tela toda */
-  background-color: #f1f1f1;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
-  border-radius: 10px;
-  overflow: hidden;
-}
+        .filter-badge {
+            margin: 0 4px 6px 0;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #ff8c00;
+            color: white;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
 
+        .filter-badge:hover {
+            background-color: #e67e00;
+        }
 
-.chat-header {
-  background-color: #007bff;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.chat-messages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-}
-.chat-input {
-  display: flex;
-  padding: 10px;
-  border-top: 1px solid #ccc;
-}
-.chat-input input {
-  flex: 1;
-  padding: 5px;
-}
-.chat-input button {
-  margin-left: 5px;
-}
+        /* Substituindo cores Bootstrap nas badges */
+        .badge.bg-primary { background-color: #ff8c00 !important; color: #fff !important; }
+        .badge.bg-warning { background-color: #ffc107 !important; color: #111b21 !important; }
+        .badge.bg-info { background-color: #17a2b8 !important; color: #111b21 !important; }
+        .badge.bg-secondary { background-color: #6c757d !important; }
+        .badge.bg-success { background-color: #28a745 !important; }
+        .badge.bg-dark { background-color: #343a40 !important; }
+        .badge.bg-danger { background-color: #dc3545 !important; }
+        .badge.bg-light { background-color: #f8f9fa !important; color: #111b21 !important; }
 
+        table thead th {
+            background-color: #f1f1f1;
+            color: #111b21;
+        }
 
-    .top-right-buttons {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    .top-right-buttons button {
-      padding: 10px 20px;
-      background-color: #00a884;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .top-right-buttons button:hover {
-      background-color: #03b197;
-    }
-
-    .side-menu {
-      position: fixed;
-      top: 0;
-      right: -260px;
-      width: 250px;
-      height: 100%;
-      background-color: #202c33;
-      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-      padding: 20px;
-      box-sizing: border-box;
-      transition: right 0.3s ease;
-      z-index: 2000;
-    }
-
-    .side-menu.open {
-      right: 0;
-    }
-
-    .side-menu h3 {
-      margin-top: 0;
-      text-align: center;
-      color: #e9edef;
-    }
-
-    .side-menu a {
-      display: block;
-      margin: 15px 0;
-      color: white;
-      text-decoration: none;
-    }
-
-    .side-menu button {
-      width: 100%;
-      background-color: #00a884;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    .side-menu button:hover {
-      background-color: #03b197;
-    }
-
-    .message-bubble {
-      max-width: 60%;
-      padding: 10px;
-      margin: 4px 0;
-      border-radius: 8px;
-      position: relative;
-      display: inline-block;
-      clear: both;
-      word-wrap: break-word;
-    }
-
-    .message-bubble.sent {
-      background-color: #005c4b;
-      color: white;
-      align-self: flex-end;
-      margin-left: auto;
-      border-top-right-radius: 0;
-    }
-
-    .message-bubble.received {
-      background-color: #2a3942;
-      color: #e9edef;
-      align-self: flex-start;
-      margin-right: auto;
-      border-top-left-radius: 0;
-    }
-
-    .message-bubble .timestamp {
-      font-size: 0.75em;
-      color: #b0b3b5;
-      text-align: right;
-      margin-top: 5px;
-    }
-
-    /* Centralizar texto de boas-vindas */
-    .welcome {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 0 20px;
-      box-sizing: border-box;
-    }
-
-    /* Estilo das opções para interação - não clicáveis */
-    .option-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-width: 60%;
-    }
-    .option-item {
-      background-color: #2a3942;
-      color: #e9edef;
-      padding: 10px 15px;
-      border-radius: 6px;
-      user-select: none;
-      border: 1.5px solid transparent;
-      transition: background-color 0.2s, border-color 0.2s;
-      align-self: flex-start;
-      font-family: monospace;
-    }
-  </style>
+        input.form-control::placeholder {
+            color: #999;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="top-right-buttons">
-    <button onclick="abrirMenu()">Ver opções</button>
-  </div>
+<div class="container my-4">
+    <h1 class="text-center mb-4">ORDENS DE SERVIÇOS RVN CRB</h1>
 
-  <div class="side-menu" id="sideMenu">
-    <button onclick="fecharMenu()">Fechar</button>
-    <h3>Menu</h3>
-    <a href="{% url 'pagina_inicial' %}"><button>Página Inicial</button></a>
-    <a href="{% url 'chatbot' %}"><button>Chatbot</button></a>
-    <a href="{% url 'adicionar_contatos' %}"><button>Adicionar Contatos</button></a>
-    <a href="{% url 'lista_contatos' %}"><button>Lista de Contatos</button></a>
-  </div>
-
-  <div class="sidebar">
-    <div class="search-bar">
-      <input type="text" placeholder="Pesquisar ou começar nova conversa" id="searchInput" oninput="filtrarConversas()" />
-    </div>
-    <div class="conversation-list" id="conversationList"></div>
-  </div>
-
-  <div class="main-panel">
-    <div class="welcome" id="welcome">
-      <h2>Bem-vindo ao Chat RVN CRB</h2>
-      <p>Selecione uma conversa ao lado para começar.</p>
+    <!-- Barra de busca e botão -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" class="form-control w-50" placeholder="Pesquisar por Nº, UM ou nome do Hóspede" />
+        <button class="btn btn-success ms-3" onclick="mostrarFormulario()">+ Nova Ordem de Serviço</button>
     </div>
 
-    <div class="chat-panel" id="chat-panel" style="display:none;">
-      <div class="chat-header" id="chat-header">
-        <span id="nome-contato">Contato</span>
-        <span class="fechar-x" onclick="fecharConversa()">×</span>
-      </div>
-      <div class="chat-messages" id="chat-messages"></div>
-      <div class="chat-input">
-        <input type="text" id="msgInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter'){enviarMensagem();}" />
-        <button onclick="enviarMensagem()">Enviar</button>
-      </div>
+    <!-- Formulário oculto -->
+    <div id="formulario-os" class="card p-3 mb-3" style="display: none;">
+        <h5 class="mb-3">Nova Ordem de Serviço</h5>
+        <div class="row g-3">
+            <!-- Removido input da data de abertura, pois será gerada automaticamente -->
+            <div class="col-md-6">
+                <input type="text" id="input-apartamento" class="form-control" placeholder="Apartamento" />
+            </div>
+            <div class="col-md-6">
+                <input type="text" id="input-categoria" class="form-control" placeholder="Categoria" />
+            </div>
+            <!-- Removido este input -->
+            <!-- <div class="col-md-6">
+                <input type="date" id="input-data-abertura" class="form-control" placeholder="Data de abertura da OS" />
+            </div> -->
+            <div class="col-md-6">
+                <input type="date" id="input-data-conclusao" class="form-control" placeholder="Data da conclusão da OS" />
+            </div>
+            <div class="col-12">
+                <input type="text" id="input-resolvido-por" class="form-control" placeholder="Resolvido por" />
+            </div>
+            <div class="col-12 text-end">
+                <button id="btn-salvar" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Contatos e mensagens padrão
-    const contatos = [
-      {
-        nome: "Ana Silva UH314",
-        opcoes: [
-          "1. Qual é a localização do hotel?",
-          "2. Quais são os horários de check-in e check-out?",
-          "3. O hotel oferece café da manhã?",
-          "4. Tem piscina e academia no hotel?",
-          "5. Quais são as políticas de cancelamento?",
-          "6. Como faço para reservar um quarto?",
-          "7. Qual o telefone para contato?"
-        ],
-        respostas: {
-          "1": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
-          "qual é a localização do hotel?": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
-          "2": "O check-in é a partir das 14h e o check-out até as 12h.",
-          "quais são os horários de check-in e check-out?": "O check-in é a partir das 14h e o check-out até as 12h.",
-          "3": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
-          "o hotel oferece café da manhã?": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
-          "4": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
-          "tem piscina e academia no hotel?": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
-          "5": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
-          "quais são as políticas de cancelamento?": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
-          "6": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
-          "como faço para reservar um quarto?": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
-          "7": "Nosso telefone para contato é (11) 1234-5678.",
-          "qual o telefone para contato?": "Nosso telefone para contato é (11) 1234-5678."
-        },
-        mensagensIniciais: [
-          "Olá! Em que posso ajudar?",
-          "Escolha uma das opções abaixo digitando o número ou o texto completo da opção:"
-        ]
-        
-      },
+    <!-- Filtros -->
+    <div class="mb-3">
+        <span class="badge bg-primary filter-badge">Todos</span>
+        <span class="badge bg-warning text-dark filter-badge">Pré-reservado</span>
+        <span class="badge bg-info text-dark filter-badge">Reservado</span>
+        <span class="badge bg-secondary filter-badge">Depositado</span>
+        <span class="badge bg-success filter-badge">Em limpeza</span>
+        <span class="badge bg-dark filter-badge">Finalizado</span>
+        <span class="badge bg-danger filter-badge">No-show</span>
+        <span class="badge bg-light text-dark filter-badge">Cancelado</span>
+        <span class="badge bg-danger filter-badge">Bloqueado</span>
+    </div>
 
-      {
+    <!-- Tabela -->
+    <div class="table-responsive">
+        <table id="tabela-os" class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>N°</th>
+                    <th>Apartamento</th>
+                    <th>Categoria</th>
+                    <th>Data de abertura da OS</th>
+                    <th>Data da conclusão da OS</th>
+                    <th>Resolvido por</th>
+                </tr>
+            </thead>
+            <tbody>
+              <!-- Linhas adicionadas aqui -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        nome: "JOSE RODRIGO UH301",
-        opcoes: [
-          "1. Qual é a localização do hotel?",
-          "2. Quais são os horários de check-in e check-out?",
-          "3. O hotel oferece café da manhã?",
-          "4. Tem piscina e academia no hotel?",
-          "5. Quais são as políticas de cancelamento?",
-          "6. Como faço para reservar um quarto?",
-          "7. Qual o telefone para contato?"
-        ],
-        respostas: {
-          "1": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
-          "qual é a localização do hotel?": "O hotel está localizado no centro da cidade, próximo à praça principal e ao shopping.",
-          "2": "O check-in é a partir das 14h e o check-out até as 12h.",
-          "quais são os horários de check-in e check-out?": "O check-in é a partir das 14h e o check-out até as 12h.",
-          "3": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
-          "o hotel oferece café da manhã?": "Sim, oferecemos café da manhã incluso na diária, das 7h às 10h.",
-          "4": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
-          "tem piscina e academia no hotel?": "Sim, o hotel possui piscina e academia disponíveis para os hóspedes.",
-          "5": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
-          "quais são as políticas de cancelamento?": "Nossa política de cancelamento permite cancelamento gratuito até 48 horas antes da data da reserva.",
-          "6": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
-          "como faço para reservar um quarto?": "Você pode reservar um quarto pelo nosso site, telefone ou app.",
-          "7": "Nosso telefone para contato é (11) 1234-5678.",
-          "qual o telefone para contato?": "Nosso telefone para contato é (11) 1234-5678."
-        },
-        mensagensIniciais: [
-          "Olá! Em que posso ajudar?",
-          "Escolha uma das opções abaixo digitando o número ou o texto completo da opção:"
-        ]
-
-      
-      }
-
-    ]
-
-    let conversaAberta = null; // contato aberto
-
-    // Preenche a lista de conversas (sidebar)
-    function carregarConversas() {
-      const lista = document.getElementById("conversationList");
-      lista.innerHTML = "";
-      contatos.forEach((contato, i) => {
-        const div = document.createElement("div");
-        div.classList.add("conversation");
-        div.dataset.index = i;
-        div.onclick = () => abrirConversa(i);
-
-        const titulo = document.createElement("div");
-        titulo.classList.add("conversation-title");
-        titulo.textContent = contato.nome;
-        div.appendChild(titulo);
-
-        lista.appendChild(div);
-      });
+<script>
+    function mostrarFormulario() {
+        const form = document.getElementById('formulario-os');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
     }
 
-    function filtrarConversas() {
-      const filtro = document.getElementById("searchInput").value.toLowerCase();
-      const lista = document.getElementById("conversationList");
-      Array.from(lista.children).forEach(div => {
-        const nome = div.textContent.toLowerCase();
-        div.style.display = nome.includes(filtro) ? "flex" : "none";
-      });
+    function formatarNumeroOS(numero) {
+        return 'HD' + numero.toString().padStart(6, '0');
     }
 
-    // Abre conversa
-    function abrirConversa(index) {
-      conversaAberta = contatos[index];
-      document.getElementById("welcome").style.display = "none";
-      document.getElementById("chat-panel").style.display = "flex";
-      document.getElementById("nome-contato").textContent = conversaAberta.nome;
-      const chatMessages = document.getElementById("chat-messages");
-      chatMessages.innerHTML = "";
-
-      // Mensagens iniciais do contato
-      conversaAberta.mensagensIniciais.forEach(texto => {
-        adicionarMensagem(texto, "received");
-      });
-
-      // Exibir opções em texto (não clicáveis)
-      exibirOpcoes();
-
-      scrollToBottom();
-      document.getElementById("msgInput").focus();
-    }
-
-    // Fecha conversa
-    function fecharConversa() {
-      conversaAberta = null;
-      document.getElementById("chat-panel").style.display = "none";
-      document.getElementById("welcome").style.display = "flex";
-      document.getElementById("chat-messages").innerHTML = "";
-    }
-
-    // Adiciona mensagem na área do chat
-    function adicionarMensagem(texto, tipo) {
-      const chatMessages = document.getElementById("chat-messages");
-      const msgDiv = document.createElement("div");
-      msgDiv.classList.add("message-bubble", tipo);
-
-      if (tipo === "received" && texto.startsWith("1.")) {
-        // Opções exibidas como lista formatada no chat para o usuário ler
-        const optionList = document.createElement("div");
-        optionList.classList.add("option-list");
-        conversaAberta.opcoes.forEach(op => {
-          const opDiv = document.createElement("div");
-          opDiv.textContent = op;
-          opDiv.classList.add("option-item");
-          optionList.appendChild(opDiv);
+    function obterProximoNumeroOS() {
+        const tbody = document.querySelector('#tabela-os tbody');
+        const linhas = tbody.querySelectorAll('tr');
+        let maiorNumero = 0;
+        linhas.forEach(tr => {
+            const numeroTexto = tr.children[0].textContent;
+            const numeroInt = parseInt(numeroTexto.replace('HD', ''), 10);
+            if (numeroInt > maiorNumero) maiorNumero = numeroInt;
         });
-        msgDiv.appendChild(optionList);
-      } else {
-        msgDiv.textContent = texto;
-      }
-
-      chatMessages.appendChild(msgDiv);
-      scrollToBottom();
+        return maiorNumero + 1;
     }
 
-    // Mostra as opções no chat para o usuário
-    function exibirOpcoes() {
-      // Limpar últimas opções antes de exibir para evitar duplicação
-      // Mas aqui não será removida, pois só mostra no início
-      adicionarMensagem(conversaAberta.opcoes[0], "received");
+    // Função para formatar datas DD/MM/YYYY
+    function formatarData(data) {
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const ano = data.getFullYear();
+        return `${dia}/${mes}/${ano}`;
     }
 
-    // Envia a mensagem do usuário
-    function enviarMensagem() {
-      if (!conversaAberta) return;
+    document.getElementById('btn-salvar').addEventListener('click', function(e) {
+        e.preventDefault();
 
-      const input = document.getElementById("msgInput");
-      const texto = input.value.trim();
-      if (!texto) return;
+        const apartamento = document.getElementById('input-apartamento').value.trim();
+        const categoria = document.getElementById('input-categoria').value.trim();
+        // const dataAbertura = document.getElementById('input-data-abertura').value; // removido
+        const dataConclusao = document.getElementById('input-data-conclusao').value;
+        const resolvidoPor = document.getElementById('input-resolvido-por').value.trim();
 
-      // Adiciona mensagem do usuário
-      adicionarMensagem(texto, "sent");
-      input.value = "";
-
-      // Responder conforme texto digitado (número ou texto exato)
-      let resposta = null;
-      const ch = texto.toLowerCase();
-
-      // Verificar se corresponde a número (1-7)
-      if (conversaAberta.respostas[ch]) {
-        resposta = conversaAberta.respostas[ch];
-      } else {
-        // Tentar achar resposta para texto completo
-        Object.entries(conversaAberta.respostas).forEach(([key, val]) => {
-          if (key === ch) resposta = val;
-        });
-      }
-
-      // Se não achou, mensagem default
-      if (!resposta) {
-        resposta = "Desculpe, não entendi. Por favor, digite o número ou texto completo da opção desejada.";
-      }
-
-      // Envia resposta após pequena demora para simular conversa
-      setTimeout(() => {
-        adicionarMensagem(resposta, "received");
-        // Após resposta, reapresentar opções para o usuário escolher novamente
-        if (resposta !== "Desculpe, não entendi. Por favor, digite o número ou texto completo da opção desejada.") {
-          setTimeout(() => {
-            exibirOpcoes();
-          }, 300);
+        // Validação: removido o dataAbertura da checagem
+        if (!apartamento || !categoria || !dataConclusao || !resolvidoPor) {
+            alert('Por favor, preencha todos os campos.');
+            return;
         }
-      }, 500);
-    }
 
-    // Scroll para o final do chat
-    function scrollToBottom() {
-      const chatMessages = document.getElementById("chat-messages");
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+        // Data de abertura automática com a data atual
+        const dataAtual = new Date();
+        const dataAberturaFormatada = formatarData(dataAtual);
 
-    // Menu lateral superior direito
-    function abrirMenu() {
-      document.getElementById("sideMenu").classList.add("open");
-    }
+        const numeroOS = formatarNumeroOS(obterProximoNumeroOS());
 
-    function fecharMenu() {
-      document.getElementById("sideMenu").classList.remove("open");
-    }
+        // Formata data conclusão para exibir na tabela
+        const dataConclusaoFormatada = formatarData(new Date(dataConclusao));
 
-    // Inicializa lista de conversas
-    carregarConversas();
-  </script>
+        const tbody = document.querySelector('#tabela-os tbody');
+
+        const novaOS = {
+            numero: numeroOS,
+            apartamento,
+            categoria,
+            dataAbertura: dataAtual,
+            dataAberturaFormatada,
+            dataConclusaoFormatada,
+            resolvidoPor
+        };
+
+        // Pega todas as OS existentes e transforma em array de objetos
+        const ordens = Array.from(tbody.querySelectorAll('tr')).map(tr => {
+            const tds = tr.querySelectorAll('td');
+            const parts = tds[3].textContent.split('/');
+            const dataAbr = new Date(parts[2], parts[1] - 1, parts[0]);
+            return {
+                numero: tds[0].textContent,
+                apartamento: tds[1].textContent,
+                categoria: tds[2].textContent,
+                dataAbertura: dataAbr,
+                dataAberturaFormatada: tds[3].textContent,
+                dataConclusaoFormatada: tds[4].textContent,
+                resolvidoPor: tds[5].textContent
+            };
+        });
+
+        ordens.push(novaOS);
+
+        ordens.sort((a, b) => b.dataAbertura - a.dataAbertura);
+
+        tbody.innerHTML = '';
+        ordens.forEach(os => {
+            const linha = document.createElement('tr');
+            linha.innerHTML = `
+                <td>${os.numero}</td>
+                <td>${os.apartamento}</td>
+                <td>${os.categoria}</td>
+                <td>${os.dataAberturaFormatada}</td>
+                <td>${os.dataConclusaoFormatada}</td>
+                <td>${os.resolvidoPor}</td>
+            `;
+            tbody.appendChild(linha);
+        });
+
+        // Limpa os campos do formulário
+        document.getElementById('input-apartamento').value = '';
+        document.getElementById('input-categoria').value = '';
+        // document.getElementById('input-data-abertura').value = ''; // removido
+        document.getElementById('input-data-conclusao').value = '';
+        document.getElementById('input-resolvido-por').value = '';
+
+        // Esconde o formulário
+        document.getElementById('formulario-os').style.display = 'none';
+    });
+</script>
+
 </body>
 </html>
